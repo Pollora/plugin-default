@@ -3,9 +3,9 @@ import laravel, { refreshPaths } from 'laravel-vite-plugin';
 import path from 'path';
 import tailwindcss from '@tailwindcss/vite';
 
-// Détection de l'environnement
+// Environment detection
 const isDocker = process.env.IS_DOCKER || process.env.DOCKER_ENV || process.env.DDEV_PRIMARY_URL;
-const port = 5174; // Port différent pour les plugins (5173 pour les thèmes)
+const port = 5174; // Different port for plugins (5173 for themes)
 const publicDirectory = "../../../../public";
 const pluginName = path.basename(__dirname);
 

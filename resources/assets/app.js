@@ -2,9 +2,8 @@ import './app.css';
 
 /**
  * Main JavaScript file for %plugin_name% plugin.
- * 
+ *
  * This file is the entry point for the plugin's frontend JavaScript.
- * It includes the main CSS file and sets up any necessary JavaScript functionality.
  */
 
 class %plugin_namespace%Plugin {
@@ -16,7 +15,6 @@ class %plugin_namespace%Plugin {
      * Initialize the plugin
      */
     init() {
-        // Wait for DOM to be ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.onDOMReady());
         } else {
@@ -29,8 +27,6 @@ class %plugin_namespace%Plugin {
      */
     onDOMReady() {
         console.log('%plugin_name% plugin loaded');
-        
-        // Add your initialization code here
         this.setupPlugin();
     }
 
@@ -38,31 +34,25 @@ class %plugin_namespace%Plugin {
      * Setup plugin functionality
      */
     setupPlugin() {
-        // Add your plugin-specific initialization code here
-        // Examples:
-        // - Initialize event listeners
-        // - Setup components
-        // - Configure AJAX endpoints
-        // - Initialize third-party libraries
+        // Plugin-specific initialization
     }
 
     /**
      * Utility method for AJAX requests
-     * 
+     *
      * @param {string} action WordPress AJAX action name
      * @param {FormData|Object} data Data to send
      * @returns {Promise} Promise resolving to response data
      */
     async ajaxRequest(action, data = {}) {
         const formData = data instanceof FormData ? data : new FormData();
-        
+
         if (!(data instanceof FormData)) {
             Object.entries(data).forEach(([key, value]) => {
                 formData.append(key, value);
             });
         }
 
-        // Add WordPress AJAX parameters
         formData.append('action', action);
         formData.append('nonce', window.%plugin_function_name%_ajax?.nonce || '');
 

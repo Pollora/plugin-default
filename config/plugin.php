@@ -7,11 +7,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configuration settings for the %plugin_name% plugin.
-    | You can define plugin-specific settings here.
     |
     */
 
-    'name' => '%plugin_name%',
+    'name' => '%plugin_slug%',
     'version' => '%plugin_version%',
     'slug' => '%plugin_slug%',
     'text_domain' => '%plugin_slug%',
@@ -20,9 +19,6 @@ return [
     |--------------------------------------------------------------------------
     | Plugin assets path
     |--------------------------------------------------------------------------
-    |
-    | Use in assets publishing etc.
-    |
     */
     'assets_path' => 'resources/assets',
 ];

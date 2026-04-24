@@ -7,13 +7,7 @@ export default {
         "./resources/views/**/*.blade.php"
     ],
     theme: {
-        extend: {
-            // Plugin-specific theme extensions
-        },
+        extend: {},
     },
-    plugins: [
-        // Add Tailwind plugins here if needed
-        // require('@tailwindcss/forms'),
-        // require('@tailwindcss/typography'),
-    ],
+    plugins: [],
 }
