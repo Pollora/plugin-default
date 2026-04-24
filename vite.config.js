@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import laravel, { refreshPaths } from 'laravel-vite-plugin';
+import { wordpressPlugin } from '@roots/vite-plugin';
+import { globSync } from 'glob';
 import path from 'path';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -14,6 +16,16 @@ const getBaseUrl = () => {
 };
 
 const isHttps = getBaseUrl().startsWith('https');
+
+const blockEntries = globSync('./resources/blocks/*/{index,view}.{js,jsx,ts,tsx}')
+    .concat(globSync('./resources/blocks/*/{editor,style}.css'))
+    .reduce((acc, file) => {
+        const slug = path.basename(path.dirname(file));
+        const name = path.basename(file, path.extname(file));
+        acc[`blocks/${slug}/${name}`] = file;
+        return acc;
+    }, {});
+const hasBlocks = Object.keys(blockEntries).length > 0;
 
 const getDevServerConfig = () => {
     const commonConfig = {
@@ -57,7 +69,7 @@ const getDevServerConfig = () => {
 
 const getPluginConfig = () => ({
     base: "/build/plugin/" + pluginName,
-    input: ["./resources/assets/app.js"],
+    input: ["./resources/assets/app.js", ...Object.values(blockEntries)],
     publicDirectory,
     hotFile: path.join(publicDirectory, `${pluginName}.hot`),
     buildDirectory: path.join("build", "plugins", pluginName),
@@ -65,6 +77,7 @@ const getPluginConfig = () => ({
         ...refreshPaths,
         'public/content/plugins/'+pluginName+'/resources/views/**',
         'public/content/plugins/'+pluginName+'/app/**/*.php',
+        'resources/blocks/**',
     ],
 });
 
@@ -76,6 +89,7 @@ export default defineConfig({
     plugins: [
         tailwindcss(),
         laravel(getPluginConfig()),
+        ...(hasBlocks ? [wordpressPlugin()] : []),
         {
             name: "blade",
             handleHotUpdate({ file, server }) {
