@@ -25,4 +25,11 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+// Plugin constants
+define('%PLUGIN_NAME%_VERSION', '%plugin_version%');
+define('%PLUGIN_NAME%_PLUGIN_FILE', __FILE__);
+define('%PLUGIN_NAME%_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('%PLUGIN_NAME%_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Register with Pollora framework
 pollora_register(ModuleType::Plugin, '%plugin_slug%', __DIR__);
