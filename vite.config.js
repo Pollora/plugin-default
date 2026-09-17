@@ -17,12 +17,13 @@ const getBaseUrl = () => {
 
 const isHttps = getBaseUrl().startsWith('https');
 
-const blockEntries = globSync('./resources/blocks/*/{index,view}.{js,jsx,ts,tsx}')
-    .concat(globSync('./resources/blocks/*/{editor,style}.css'))
+const blockEntries = globSync([
+    './resources/views/blocks/*/{index,view}.{js,jsx,ts,tsx}',
+    './resources/views/blocks/*/{editor,style}.css',
+])
     .reduce((acc, file) => {
-        const slug = path.basename(path.dirname(file));
-        const name = path.basename(file, path.extname(file));
-        acc[`blocks/${slug}/${name}`] = file;
+        // Keyed by path: blocks sharing a file name never overwrite each other
+        acc[file.replace(/^\.\//, '').replace(/\.\w+$/, '')] = file;
         return acc;
     }, {});
 const hasBlocks = Object.keys(blockEntries).length > 0;
@@ -74,10 +75,9 @@ const getPluginConfig = () => ({
     hotFile: path.join(publicDirectory, `${pluginName}.hot`),
     buildDirectory: path.join("build", "plugins", pluginName),
     refresh: [
-        ...refreshPaths,
-        'public/content/plugins/'+pluginName+'/resources/views/**',
+        ...refreshPaths.filter((refreshPath) => refreshPath !== 'resources/views/**'),
+        'public/content/plugins/'+pluginName+'/resources/views/**/*.blade.php',
         'public/content/plugins/'+pluginName+'/app/**/*.php',
-        'resources/blocks/**',
     ],
 });
 
