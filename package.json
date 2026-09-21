@@ -27,5 +27,5 @@
         "pollora"
     ],
     "author": "%plugin_author%",
-    "license": "GPL-2.0+"
+    "license": "MIT"
 }

@@ -41,7 +41,7 @@ npm run build
 
 ## License
 
-GPL v2 or later.
+MIT — see [LICENSE](LICENSE).
 
 ## Credits
 
