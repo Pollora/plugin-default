@@ -105,6 +105,20 @@ elif [ -f "$TARGET_DIR/%plugin_name%.php" ]; then
     true
 fi
 
+echo "Checking nothing kept the code name..."
+
+# The replacement rules above are a hand-maintained list, and theme-default
+# shipped a tag where a whole new directory slipped past its equivalent: the
+# blocks added under resources/views went out naming the development theme.
+# Nothing there noticed, because nothing looked afterwards. This looks.
+if leaked=$(grep -rn "${CODE_NAME}\|${CODE_STUDLY}\|${CODE_FUNCTION}\|${CODE_UPPER}" "$TARGET_DIR" \
+        --exclude-dir=.git --exclude-dir=node_modules --exclude=package-plugin.sh); then
+    echo ""
+    echo "Error: the code name survived packaging:"
+    echo "$leaked"
+    exit 1
+fi
+
 echo ""
 echo "=== Done ==="
 echo ""
