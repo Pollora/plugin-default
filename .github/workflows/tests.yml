@@ -134,18 +134,6 @@ jobs:
             --no-interaction || true
           ddev exec wp core is-installed
 
-      # A plugin cannot be exercised without a theme to render into, and the
-      # 13.4 install left none behind.
-      - name: Ensure a theme is active
-        working-directory: site
-        run: |
-          ddev exec bash -c '
-            wp theme list --field=name | grep -q . || \
-              php artisan $(php artisan list --raw | grep -oE "pollora:make[:-]theme" | head -1) default \
-                --theme-author=Pollora --theme-version=1.0.0 --no-interaction
-            wp theme activate $(wp theme list --field=name | head -1)
-          '
-
       # The scaffolder can only download a tag, so without --source this job
       # would measure the last release and report it as the branch being green.
       - name: Place the commit under test where the container can reach it

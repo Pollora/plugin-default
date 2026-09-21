@@ -150,6 +150,56 @@ function makePluginCommand(): string
 }
 
 /**
+ * Make sure the site has an active theme before the plugin is exercised.
+ *
+ * A plugin cannot be judged on a site that cannot render: every page would
+ * answer with the missing-theme notice and the checks below would pass or fail
+ * for reasons that have nothing to do with the plugin. On framework 13.4 the
+ * install leaves no theme at all, because `pollora:install` dies before its
+ * theme step.
+ *
+ * This lived in the workflow as a shell one-liner and was the first thing to
+ * break in CI. Here it can be read, and it runs identically by hand.
+ */
+function ensureActiveTheme(): void
+{
+    $installed = array_values(array_filter(explode("\n", run('wp theme list --field=name')['out'])));
+
+    if ($installed === []) {
+        $list = run('php artisan list --raw');
+        $command = str_contains($list['out'], 'pollora:make:theme') ? 'pollora:make:theme' : 'pollora:make-theme';
+
+        echo "  \033[2m→ no theme on the site; scaffolding one with {$command}\033[0m\n";
+
+        $scaffold = run('php artisan '.$command.' default'
+            .' --theme-author=Pollora --theme-description='.escapeshellarg('Theme for the plugin check')
+            .' --theme-version=1.0.0 --no-interaction');
+
+        if ($scaffold['code'] !== 0) {
+            throw new \RuntimeException("could not scaffold a theme: {$scaffold['out']}");
+        }
+
+        $installed = array_values(array_filter(explode("\n", run('wp theme list --field=name')['out'])));
+    }
+
+    if ($installed === []) {
+        throw new \RuntimeException('the site still has no theme after scaffolding one');
+    }
+
+    $active = run('wp theme list --status=active --field=name')['out'];
+
+    if (trim($active) !== '') {
+        return;
+    }
+
+    $activated = run('wp theme activate '.escapeshellarg($installed[0]));
+
+    if ($activated['code'] !== 0) {
+        throw new \RuntimeException("could not activate {$installed[0]}: {$activated['out']}");
+    }
+}
+
+/**
  * Where the scaffolder put the plugin.
  *
  * The plugins directory moved between skeleton generations, so it is asked for
@@ -223,6 +273,8 @@ function overlaySource(string $source, string $pluginDir, string $name): void
 
 echo "\n\033[1m=== plugin-default — install check ===\033[0m\n";
 echo "\033[2m{$baseUrl} · plugin {$name}\033[0m\n";
+
+ensureActiveTheme();
 
 $command = makePluginCommand();
 echo "  \033[2m→ scaffolding with {$command}\033[0m\n";
