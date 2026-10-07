@@ -108,6 +108,7 @@ find "$TARGET_DIR" -type f \
             -e "s|Author URI: https://pollora.dev|Author URI: %plugin_author_uri%|g" \
             -e "s|Version: [0-9.]*|Version: %plugin_version%|g" \
             -e "s|'version' => '[0-9.]*'|'version' => '%plugin_version%'|g" \
+            -e "s|_VERSION', '[0-9.]*'|_VERSION', '%plugin_version%'|g" \
             -e "s|\"version\": \"[0-9.]*\"|\"version\": \"%plugin_version%\"|g" \
             -e "s|${CODE_UPPER}|%PLUGIN_NAME%|g" \
             -e "s|${CODE_FUNCTION}|%plugin_function_name%|g" \
