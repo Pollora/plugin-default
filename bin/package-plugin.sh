@@ -35,6 +35,15 @@ if [ ! -d "$SOURCE" ]; then
     exit 1
 fi
 
+# The WordPress and PHP requirements in the plugin header belong to the
+# template, which follows the framework; the development copy lags behind.
+# Read them before the sync and put them back after it.
+TEMPLATE_MAIN="$TARGET_DIR/%plugin_name%.php"
+REQUIREMENTS=""
+if [ -f "$TEMPLATE_MAIN" ]; then
+    REQUIREMENTS=$(grep -E '^ \* (Requires at least|Tested up to|Requires PHP):' "$TEMPLATE_MAIN" || true)
+fi
+
 # Sync files (exclude node_modules, locks, build artifacts, .git)
 echo "Syncing files..."
 rsync -av --delete \
@@ -43,13 +52,39 @@ rsync -av --delete \
     --exclude='yarn.lock' \
     --exclude='.git' \
     --exclude='bin/' \
+    --exclude='/README.md' \
+    --exclude='/.github/' \
+    --exclude='/LICENSE' \
+    --exclude='/license.txt' \
     "$SOURCE/" "$TARGET_DIR/" \
     --quiet
+
+# package.json comes from the development copy, which declares no license (or
+# another one): the template's is MIT, the same as LICENSE.
+echo "Setting the package.json license to MIT..."
+node -e '
+const fs = require("fs");
+const [file, license] = process.argv.slice(1);
+const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+let out = pkg;
+if ("license" in pkg) {
+    pkg.license = license;
+} else {
+    out = {};
+    for (const [key, value] of Object.entries(pkg)) {
+        out[key] = value;
+        if (key === "private") out.license = license;
+    }
+    if (!("license" in out)) out.license = license;
+}
+fs.writeFileSync(file, JSON.stringify(out, null, 4) + "\n");
+' "$TARGET_DIR/package.json" "MIT"
 
 echo "Replacing code name with placeholders..."
 
 find "$TARGET_DIR" -type f \
     -not -path "*/.git/*" \
+    -not -path "*/.github/*" \
     -not -path "*/node_modules/*" \
     -not -path "*/bin/*" \
     -not -name "package-plugin.sh" \
@@ -105,6 +140,14 @@ elif [ -f "$TARGET_DIR/%plugin_name%.php" ]; then
     true
 fi
 
+if [ -n "$REQUIREMENTS" ] && [ -f "$TEMPLATE_MAIN" ]; then
+    echo "Restoring the template's requirements in the plugin header..."
+    while IFS= read -r line; do
+        key="${line%%:*}"
+        sed -i "s|^${key//\*/\\*}:.*|${line}|" "$TEMPLATE_MAIN"
+    done <<< "$REQUIREMENTS"
+fi
+
 echo "Checking nothing kept the code name..."
 
 # The replacement rules above are a hand-maintained list, and theme-default
@@ -112,7 +155,7 @@ echo "Checking nothing kept the code name..."
 # blocks added under resources/views went out naming the development theme.
 # Nothing there noticed, because nothing looked afterwards. This looks.
 if leaked=$(grep -rn "${CODE_NAME}\|${CODE_STUDLY}\|${CODE_FUNCTION}\|${CODE_UPPER}" "$TARGET_DIR" \
-        --exclude-dir=.git --exclude-dir=node_modules --exclude=package-plugin.sh); then
+        --exclude-dir=.git --exclude-dir=.github --exclude-dir=bin --exclude-dir=node_modules --exclude=package-plugin.sh); then
     echo ""
     echo "Error: the code name survived packaging:"
     echo "$leaked"
