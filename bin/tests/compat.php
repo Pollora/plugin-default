@@ -39,7 +39,7 @@ function scaffoldedPluginFile(): string
     $source = pluginPath('%plugin_name%.php');
 
     if (! is_file($source)) {
-        throw new \RuntimeException('the template has no %plugin_name%.php — the main file was renamed');
+        throw new RuntimeException('the template has no %plugin_name%.php — the main file was renamed');
     }
 
     $replacements = scaffolderReplacements(TEST_SLUG);
@@ -131,7 +131,7 @@ function checkRegistrationGuard(): void
 
         return str_starts_with($result['out'], 'pollora_register:plugin:'.TEST_SLUG)
             ? true
-            : "expected pollora_register:plugin:".TEST_SLUG.", got '{$result['out']}'";
+            : 'expected pollora_register:plugin:'.TEST_SLUG.", got '{$result['out']}'";
     });
 
     test('Framework >= 13.32: does not also call the registrar', function () {
@@ -151,7 +151,7 @@ function checkRegistrationGuard(): void
 
         return str_starts_with($result['out'], 'registrar::register:'.TEST_SLUG)
             ? true
-            : "expected registrar::register:".TEST_SLUG.", got '{$result['out']}'";
+            : 'expected registrar::register:'.TEST_SLUG.", got '{$result['out']}'";
     });
 
     test('Neither is available: leaves the plugin unregistered, without a fatal', function () {
