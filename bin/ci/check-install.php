@@ -71,7 +71,7 @@ function test(string $name, callable $fn): void
 
     try {
         $result = $fn();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         echo "  \033[31m✗\033[0m  {$name} — {$e->getMessage()}\n";
         $failed++;
 
@@ -97,7 +97,7 @@ function run(string $command): array
     $process = proc_open($command.' 2>&1', $descriptors, $pipes);
 
     if (! is_resource($process)) {
-        throw new \RuntimeException("could not run: {$command}");
+        throw new RuntimeException("could not run: {$command}");
     }
 
     $out = stream_get_contents($pipes[1]) ?: '';
@@ -112,7 +112,7 @@ function wpEval(string $php): string
     $result = run('wp eval '.escapeshellarg($php));
 
     if ($result['code'] !== 0) {
-        throw new \RuntimeException("wp eval failed: {$result['out']}");
+        throw new RuntimeException("wp eval failed: {$result['out']}");
     }
 
     return $result['out'];
@@ -176,14 +176,14 @@ function ensureActiveTheme(): void
             .' --theme-version=1.0.0 --no-interaction');
 
         if ($scaffold['code'] !== 0) {
-            throw new \RuntimeException("could not scaffold a theme: {$scaffold['out']}");
+            throw new RuntimeException("could not scaffold a theme: {$scaffold['out']}");
         }
 
         $installed = array_values(array_filter(explode("\n", run('wp theme list --field=name')['out'])));
     }
 
     if ($installed === []) {
-        throw new \RuntimeException('the site still has no theme after scaffolding one');
+        throw new RuntimeException('the site still has no theme after scaffolding one');
     }
 
     $active = run('wp theme list --status=active --field=name')['out'];
@@ -195,7 +195,7 @@ function ensureActiveTheme(): void
     $activated = run('wp theme activate '.escapeshellarg($installed[0]));
 
     if ($activated['code'] !== 0) {
-        throw new \RuntimeException("could not activate {$installed[0]}: {$activated['out']}");
+        throw new RuntimeException("could not activate {$installed[0]}: {$activated['out']}");
     }
 }
 
@@ -210,7 +210,7 @@ function pluginsDirectory(): string
     $path = wpEval('echo WP_PLUGIN_DIR;');
 
     if ($path === '' || ! is_dir($path)) {
-        throw new \RuntimeException("WP_PLUGIN_DIR is {$path}, which does not exist");
+        throw new RuntimeException("WP_PLUGIN_DIR is {$path}, which does not exist");
     }
 
     return $path;

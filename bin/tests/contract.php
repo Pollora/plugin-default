@@ -24,7 +24,7 @@ require_once dirname(__DIR__).'/replacements.php';
 const CODE_NAMES = ['pollora-demo-plugin', 'PolloraDemoPlugin', 'pollora_demo_plugin', 'POLLORA_DEMO_PLUGIN'];
 
 /**
- * @return array<int, string>  every shipped file, repository-relative
+ * @return array<int, string> every shipped file, repository-relative
  */
 function shippedFiles(): array
 {
